@@ -1,12 +1,12 @@
 const express = require("express");
-const { createUser, getUserById } = require("../controllers/userController");
-
 const router = express.Router();
+const userController = require("../controllers/userController");
 
-// Tạo người dùng mới
-router.post("/", createUser);
-
-// Lấy thông tin người dùng theo ID
-router.get("/:id", getUserById);
+// Define the routes for users
+router.post("/", userController.createUser);
+router.get("/", userController.getUsers);
+router.get("/:id", userController.getUserById);
+router.put("/:id", userController.updateUser);
+router.delete("/:id", userController.deleteUser);
 
 module.exports = router;

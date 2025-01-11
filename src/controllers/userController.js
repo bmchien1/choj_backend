@@ -1,19 +1,24 @@
-const User = require("../models/user");
+const { User } = require("../models");
 
-// Tạo người dùng mới
-const createUser = async (req, res) => {
+exports.createUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    const user = await User.create({ name, email, password });
+    const user = await User.create(req.body);
     res.status(201).json(user);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(400).json({ error: err.message });
   }
 };
 
-// Lấy thông tin người dùng theo ID
-const getUserById = async (req, res) => {
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+exports.getUserById = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.id);
     if (!user) {
@@ -21,12 +26,35 @@ const getUserById = async (req, res) => {
     }
     res.status(200).json(user);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(400).json({ error: err.message });
   }
 };
 
-module.exports = {
-  createUser,
-  getUserById,
+exports.updateUser = async (req, res) => {
+  try {
+    const user = await User.update(req.body, {
+      where: { id: req.params.id },
+      returning: true,
+    });
+    if (!user[0]) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user[1][0]);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.destroy({
+      where: { id: req.params.id },
+    });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ message: "User deleted" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
